@@ -26,7 +26,7 @@ import { useAppStore } from '@/store'
 import { useShortcutLabel } from '@/hooks/useShortcutLabel'
 import { detectLanguage } from '@/lib/language-detect'
 import { openFileInBrowserTab } from '@/lib/file-preview'
-import { isLocalPathOpenBlocked, showLocalPathOpenBlockedToast } from '@/lib/local-path-open-guard'
+import { showLocalPathOpenBlockedToast } from '@/lib/local-path-open-guard'
 import { translate } from '@/i18n/i18n'
 import type { FileExplorerRowProps } from './FileExplorerRow'
 import {
@@ -279,18 +279,9 @@ export function FileExplorerRowContextMenu({
       )}
       <ContextMenuItem
         onSelect={() => {
-          const state = useAppStore.getState()
-          const activeWorktree = Object.values(state.worktreesByRepo)
-            .flat()
-            .find((worktree) => worktree.id === activeWorktreeId)
-          const activeRepo = activeWorktree
-            ? state.repos.find((repo) => repo.id === activeWorktree.repoId)
-            : null
-          if (
-            isLocalPathOpenBlocked(state.settings, {
-              connectionId: activeRepo?.connectionId ?? null
-            })
-          ) {
+          // Why: the host that listed this row owns its path; a globally focused
+          // runtime does not make a local workspace's files remote.
+          if (node.operationOwner?.kind !== 'local') {
             showLocalPathOpenBlockedToast()
             return
           }
