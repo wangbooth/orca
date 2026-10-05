@@ -15,6 +15,7 @@ import { OpenInApplicationIcon } from '@/lib/open-in-app-catalog'
 import { translate } from '@/i18n/i18n'
 import { getLocalFileManagerLabel } from '@/lib/local-file-manager-label'
 import { NO_OPEN_IN_APPLICATIONS } from '@/lib/open-in-application-selection'
+import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner'
 import {
   getOpenInEntryAvailability,
   getWorktreeOpenInEntries,
@@ -47,6 +48,9 @@ export function SourceControlEntryContextMenu({
     (s) => s.settings?.openInApplications ?? NO_OPEN_IN_APPLICATIONS
   )
   const settings = useAppStore((s) => s.settings)
+  const runtimeEnvironmentId = useAppStore((s) =>
+    getRuntimeEnvironmentIdForWorktree(s, currentWorktreeId)
+  )
   const fileManagerLabel = getLocalFileManagerLabel()
   const openInEntries = React.useMemo(
     () => getWorktreeOpenInEntries(openInApplications, fileManagerLabel),
@@ -83,10 +87,11 @@ export function SourceControlEntryContextMenu({
         target,
         worktreePath: absolutePath,
         connectionId,
+        runtimeEnvironmentId,
         command
       })
     },
-    [absolutePath, connectionId]
+    [absolutePath, connectionId, runtimeEnvironmentId]
   )
 
   return (
@@ -120,7 +125,12 @@ export function SourceControlEntryContextMenu({
           </ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-52">
             {openInEntries.map((entry) => {
-              const availability = getOpenInEntryAvailability(entry, settings, connectionId)
+              const availability = getOpenInEntryAvailability(
+                entry,
+                settings,
+                connectionId,
+                runtimeEnvironmentId
+              )
               return (
                 <ContextMenuItem
                   key={entry.id}

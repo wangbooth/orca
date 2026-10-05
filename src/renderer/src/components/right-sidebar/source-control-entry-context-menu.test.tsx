@@ -44,6 +44,10 @@ vi.mock('@/lib/open-in-app-catalog', () => ({
   OpenInApplicationIcon: () => null
 }))
 
+vi.mock('@/lib/worktree-runtime-owner', () => ({
+  getRuntimeEnvironmentIdForWorktree: () => null
+}))
+
 vi.mock('@/components/sidebar/WorktreeOpenInMenu', () => ({
   getWorktreeOpenInEntries: () => [],
   openOpenInAppsSettings: vi.fn(),
