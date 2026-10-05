@@ -1,0 +1,62 @@
+name: Manual macOS test build
+
+# Why: an ad-hoc signed arm64 DMG of this branch for manual testing. The test host
+# is Linux and cannot package macOS. Temporary branch only; nothing is published.
+on:
+  push:
+    branches: [ci/mac-test-build]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 90
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/setup@v2
+        with:
+          install: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            mobile/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: ./.github/actions/install-mobile-dependencies
+
+      # Same steps as `pnpm build:mac`, minus x64, zip and a signing certificate.
+      - run: pnpm run build:desktop
+
+      - run: |
+          pnpm run build:computer-macos
+          pnpm run build:keyboard-layout-macos
+          pnpm run build:notification-status-macos
+          pnpm run ensure:electron-runtime
+
+      - name: Package ad-hoc signed arm64 DMG
+        run: |
+          set -euo pipefail
+          IDENTITY=$(node --input-type=module -e "import { getLocalBuildIdentity as g } from './config/scripts/build-mac-local.mjs'; const i = g(); console.log(i.commit + ' ' + i.version)")
+          export ORCA_BUILD_COMMIT="${IDENTITY% *}" ORCA_LOCAL_BUILD_VERSION="${IDENTITY#* }"
+          echo "Building $ORCA_LOCAL_BUILD_VERSION"
+          # Why identity '-': without a certificate electron-builder skips signing, and arm64 apps need at least ad-hoc.
+          pnpm exec electron-builder --config config/electron-builder.config.cjs -c.mac.identity=- --mac dmg --arm64 --publish never
+          codesign --verify --deep --strict dist/mac-arm64/Orca.app
+          codesign -dv dist/mac-arm64/Orca.app 2>&1 | grep -E 'Identifier|Signature'
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: orca-macos-arm64
+          path: dist/orca-macos-arm64.dmg
+          retention-days: 7
+          if-no-files-found: error
