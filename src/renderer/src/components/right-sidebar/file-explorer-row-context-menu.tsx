@@ -285,7 +285,7 @@ export function FileExplorerRowContextMenu({
             showLocalPathOpenBlockedToast()
             return
           }
-          window.api.shell.openPath(node.path)
+          window.api.shell.openPath(node.path, null)
         }}
       >
         <ExternalLink />

@@ -15,7 +15,7 @@ import { OpenInApplicationIcon } from '@/lib/open-in-app-catalog'
 import { translate } from '@/i18n/i18n'
 import { getLocalFileManagerLabel } from '@/lib/local-file-manager-label'
 import { NO_OPEN_IN_APPLICATIONS } from '@/lib/open-in-application-selection'
-import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner'
+import { getLocalOpenRuntimeOwnerForWorktree } from '@/lib/worktree-runtime-owner'
 import {
   getOpenInEntryAvailability,
   getWorktreeOpenInEntries,
@@ -49,7 +49,7 @@ export function SourceControlEntryContextMenu({
   )
   const settings = useAppStore((s) => s.settings)
   const runtimeEnvironmentId = useAppStore((s) =>
-    getRuntimeEnvironmentIdForWorktree(s, currentWorktreeId)
+    getLocalOpenRuntimeOwnerForWorktree(s, currentWorktreeId)
   )
   const fileManagerLabel = getLocalFileManagerLabel()
   const openInEntries = React.useMemo(

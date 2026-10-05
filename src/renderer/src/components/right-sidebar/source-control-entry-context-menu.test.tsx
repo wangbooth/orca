@@ -45,7 +45,7 @@ vi.mock('@/lib/open-in-app-catalog', () => ({
 }))
 
 vi.mock('@/lib/worktree-runtime-owner', () => ({
-  getRuntimeEnvironmentIdForWorktree: () => null
+  getLocalOpenRuntimeOwnerForWorktree: () => null
 }))
 
 vi.mock('@/components/sidebar/WorktreeOpenInMenu', () => ({

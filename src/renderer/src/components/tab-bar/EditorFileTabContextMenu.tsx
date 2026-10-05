@@ -258,7 +258,7 @@ export function EditorFileTabContextMenu({
               showLocalPathOpenBlockedToast()
               return
             }
-            window.api.shell.openPath(file.filePath)
+            window.api.shell.openPath(file.filePath, file.runtimeEnvironmentId)
           }}
         >
           <ExternalLink className="size-3.5" />

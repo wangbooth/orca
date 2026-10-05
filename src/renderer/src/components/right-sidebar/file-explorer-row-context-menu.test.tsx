@@ -88,7 +88,7 @@ describe('FileExplorerRowContextMenu reveal', () => {
   it('reveals a locally listed file while a remote runtime is focused', () => {
     selectReveal({ kind: 'local' })
 
-    expect(openPath).toHaveBeenCalledWith(fileNode.path)
+    expect(openPath).toHaveBeenCalledWith(fileNode.path, null)
     expect(toastErrorMock).not.toHaveBeenCalled()
   })
 
@@ -99,6 +99,8 @@ describe('FileExplorerRowContextMenu reveal', () => {
   ]
 
   it.each(nonLocalOwners)('blocks reveal for a %s row', (_label, operationOwner) => {
+    // Why: with no runtime focused, only the row's owner can be what blocks it.
+    useAppStore.setState({ settings: getDefaultSettings('/tmp') })
     selectReveal(operationOwner)
 
     expect(openPath).not.toHaveBeenCalled()

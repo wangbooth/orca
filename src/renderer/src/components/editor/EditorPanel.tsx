@@ -291,7 +291,7 @@ function EditorPanelInner({
       showLocalPathOpenBlockedToast()
       return
     }
-    window.api.shell.openPath(activeFile.filePath)
+    window.api.shell.openPath(activeFile.filePath, activeFile.runtimeEnvironmentId)
   }
   const disableRenameBrowse = Boolean(
     settingsForRuntimeOwner(
